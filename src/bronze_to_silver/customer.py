@@ -41,5 +41,5 @@ expenditure_df = converted_date_df.withColumn('expenditure-status', when(col('sp
 
 # COMMAND ----------
 
-writeTo = f'dbfs:/mnt/Silver/sales_view/customer'
+writeTo = f'dbfs:/mnt/silver/sales_view/customer'
 expenditure_df.write.format('delta').save(writeTo)

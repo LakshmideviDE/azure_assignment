@@ -1,45 +1,34 @@
 
-# Mount Bronze Blob Storage using dbutils
-storage_account_name = "lakhsmistorage3"
-container_name = "bronze"
-mount_point = "/mnt/Bronze"
-AccessKey = 'ANxqNsu2j1oTIWYyee/x6ifkwKMRHmjtgqhkJnbVMyXR3nx50thBP+PBAkG2quIZrVsq/8QuE9xj+AStKtiUyg=='
+def mount_blob_storage(storage_account_name, container_name, mount_point, access_key):
+    dbutils.fs.mount(
+        source=f"wasbs://{container_name}@{storage_account_name}.blob.core.windows.net",
+        mount_point=mount_point,
+        extra_configs={
+            f"fs.azure.account.key.{storage_account_name}.blob.core.windows.net": access_key
+        }
+    )
 
-dbutils.fs.mount(
-  source=f"wasbs://{container_name}@{storage_account_name}.blob.core.windows.net",
-  mount_point=mount_point,
-  extra_configs={
-    f"fs.azure.account.key.{storage_account_name}.blob.core.windows.net": AccessKey
-  }
-)# COMMAND ----------
 
-# Mount Gold Blob Storage using dbutils
-storage_account_name = "lakhsmistorage3"
-container_name = "silver"
-mount_point = "/mnt/Silver"
-AccessKey = 'ANxqNsu2j1oTIWYyee/x6ifkwKMRHmjtgqhkJnbVMyXR3nx50thBP+PBAkG2quIZrVsq/8QuE9xj+AStKtiUyg=='
+# COMMAND ----------
 
-dbutils.fs.mount(
-  source=f"wasbs://{container_name}@{storage_account_name}.blob.core.windows.net",
-  mount_point=mount_point,
-  extra_configs={
-    f"fs.azure.account.key.{storage_account_name}.blob.core.windows.net": AccessKey
-  }
-)
+# Define widgets for input parameters
+dbutils.widgets.text("storage_account_name", "lakhsmistorage3","Storage Account Name")
+dbutils.widgets.text("container_name", "silver", "Container Name")
+dbutils.widgets.text("mount_point", "/mnt/silver", "Mount Point")
+dbutils.widgets.text("access_key", "ANxqNsu2j1oTIWYyee/x6ifkwKMRHmjtgqhkJnbVMyXR3nx50thBP+PBAkG2quIZrVsq/8QuE9xj+AStKtiUyg==", "Access Key")
 
-storage_account_name = "lakhsmistorage3"
-container_name = "gold"
-mount_point = "/mnt/gold"
-AccessKey = 'ANxqNsu2j1oTIWYyee/x6ifkwKMRHmjtgqhkJnbVMyXR3nx50thBP+PBAkG2quIZrVsq/8QuE9xj+AStKtiUyg=='
+# COMMAND ----------
 
-dbutils.fs.mount(
-  source=f"wasbs://{container_name}@{storage_account_name}.blob.core.windows.net",
-  mount_point=mount_point,
-  extra_configs={
-    f"fs.azure.account.key.{storage_account_name}.blob.core.windows.net": AccessKey
-  }
-)
+storage_account_name = dbutils.widgets.get("storage_account_name")
+container_name = dbutils.widgets.get("container_name")
+mount_point = dbutils.widgets.get("mount_point")
+access_key = dbutils.widgets.get("access_key")
 
+# COMMAND ----------
+
+mount_blob_storage(storage_account_name, container_name, mount_point, access_key)
+
+# COMMAND ----------
 
 from pyspark.sql.functions import udf
 def toSnakeCase(df):
@@ -66,3 +55,4 @@ def read_delta_file(delta_path):
     df = spark.read.format("delta").load(delta_path)
     return df
 udf(read_delta_file)
+
