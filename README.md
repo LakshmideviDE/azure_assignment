@@ -1,52 +1,67 @@
-Databricks Assignment
+ADF ASSIGNMENT
 
-Question 1:
+1.Create a container in ADLS with the project name as sales_view_devtst
 
-1.Create 3 folders as source_to_bronze, bronze_to_silver, silver_to_gold.
+• Create a folder for customer, product, store, and sales - Upload the files in sequence to make it work in real-time.
 
-2.Create 4 notebooks in this respective order.
+2.Create an ADF Pipeline to get the latest modified files the folders of the ADLS
 
-2 Notebooks named in source_to_bronze as utils
-1 Notebook in bronze to silver as employee_bronze_to_silver
-1 Notebook in silver to gold as employee_silver_to_gold
-3.Read the 3 datasets as Dataframe in employee_source_to_bronze, call utils notebook in this notebook, and write to a location in DBFS, as /source_to_bronze/file_name.csv (employee, department_df, country_df) as CSV format.
+•Parameterize the Pipeline to work dynamically.
 
-4.In employee_bronze_to_silver, call utils notebook in this notebook. Read the file located in DBFS location source_to_bronze with as data frame different read methods using custom schema.
+•Values need to be passed through parameters and it should work for all day's file
 
-5.convert the Camel case of the columns to the snake case using UDF.
+3.Create a Bronze/sales_view/ (Bronze – container)
 
-6.Add the load_date column with the current date.
+•Subfolders-> customer, product, store, sales, and store the raw data copied from the ADF pipeline
 
-• The primary key is EmployeeID, the Database name is Employee_info, Table name is dim_employee.
+4.Customer file
 
-• write the DF as a delta table to the location /silver/db_name/table_name.
+•All the column header should be in snake case in lower case (By using UDF function dynamically works for all camel case to snake case)
 
-7.In gold notebook employee_silver_to_gold, call utils notebook in this notebook Read the table stored in a silver layer as DataFrame and select the columns based on the following requirements.
+•By using the "Name" column split by " " and create two columns first_name and last_name
 
-8.Requirements:
+•Create column domain and extract from email columns Ex: Email = "josephrice131@slingacademy.com" domain="slingacademy"
 
-• Find the salary of each department in descending order.
+•Create a column gender where male = "M" and Female="F"
 
-• Find the number of employees in each department located in each country.
+•From Joining date create two colums date and time by splitting based on " " delimiter.
 
-• List the department names along with their corresponding country names.
+•Date column should be on "yyyy-MM-dd" format.
 
-• What is the average age of employees in each department?
+•Create a column expenditure-status, based on spent column is spent below 200 column value is "MINIMUM" else "MAXIMUM"
 
-• Add the at_load_date column to data frames.
+•Write based on upsert table_name: customer (in silver layer path is silver/sales_view/tablename/{delta pearquet}
 
-• Write the df to dbfs location /gold/employee/table_name(fact_employee) with overwrite and replace where condition on at_load_date.
+5.Product File
 
-Question 2:
+•All the column header shlould be in snake case in lower case (use same UDF Function)
 
-1.Fetch the data from the given API by passing the parameter as a page and retrieving the data till the data is empty.
+•Create a column sub_category (Use Category columns id category_id=1, "phone"; 2, "laptop"; 3,"playstation"; 4,"e-device"
 
-2.Read the data frame with a custom schema
+•Write based on upsert table_name: product(in silver layer path is silver/sales_view/tablename/{delta pearquet}
 
-3.Flatten the dataframe
+6.Store
 
-4.Derive a new column from email as site_address with values(reqres.in)
+•Read the data make sure header shlould be in snake case in lower case (use same UDF Function)
 
-5.Add load_date with the current date
+•Create a store category columns and the value is exatracted from email Eg: "electromart" from johndoe@electromart.com
 
-6.Write the data frame to location in DBFS as /db_name /table_name with Db_name as site_info and table_name as person_info with delta format and overwrite mode.
+•created_at, updated_at date as yyyy-MM-dd format
+
+•Write based on upsert table_name: store (in silver layer path is silver/sales_view/tablename/{delta pearquet}
+
+8.Sales
+
+•Read the data make sure header shlould be in snake case in lower case (use same UDF Function)
+
+•Write based on upsert table_name: customer_sales (in silver layer path is silver/sales_view/tablename/{delta pearquet}
+
+9.In gold layer
+
+•using product and store table get the below data store_id,store_name,location,manager_name,product_name,product_code,description,category_id,price,stock_quantity,supplier_id,product_created_at,product_updated_at,image_url,weight,expiry_date,is_active,tax_rate.
+
+•Read the delta table (using UDF functions)
+
+•Using the above data & customer_sales and get the below data OrderDate,Category,City,CustomerID,OrderID,Product ID,Profit,Region,Sales,Segment,ShipDate,ShipMode,latitude,longitude,store_name,location,manager_name,product_name,price,stock_quantity,image_url
+
+•Write based on overwrite (table_name : StoreProductSalesAnalysis )(in gold layer path is gold/sales_view/tablename/{delta pearquet}
