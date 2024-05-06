@@ -1,51 +1,52 @@
-Project Setup
-Create Container in ADLS:
+Databricks Assignment
 
-Create a container in ADLS named sales_view_devtst.
-Create folders for customer, product, store, and sales and upload files in sequence for real-time functionality.
-ADF Pipeline Setup:
+Question 1:
 
-Create an ADF Pipeline to retrieve the latest modified files from the folders in ADLS.
-Parameterize the Pipeline for dynamic functionality.
-Parameters should facilitate processing of files for any day.
-Bronze Layer Setup:
+1.Create 3 folders as source_to_bronze, bronze_to_silver, silver_to_gold.
 
-Create Bronze/sales_view/ container.
-Subfolders: customer, product, store, sales.
-Copy raw data from ADF pipeline to respective subfolders.
-Silver Layer Transformation
-Customer File Transformation:
+2.Create 4 notebooks in this respective order.
 
-Convert all column headers to snake case in lower case.
-Split "Name" column into "first_name" and "last_name".
-Extract domain from email column.
-Assign gender based on "M" or "F".
-Split Joining date into date and time.
-Format date column to "yyyy-MM-dd".
-Assign "expenditure-status" based on spent column.
-Write data to silver layer [table_name: customer].
-Product File Transformation:
+2 Notebooks named in source_to_bronze as utils
+1 Notebook in bronze to silver as employee_bronze_to_silver
+1 Notebook in silver to gold as employee_silver_to_gold
+3.Read the 3 datasets as Dataframe in employee_source_to_bronze, call utils notebook in this notebook, and write to a location in DBFS, as /source_to_bronze/file_name.csv (employee, department_df, country_df) as CSV format.
 
-Convert column headers to snake case in lower case.
-Create "sub_category" column based on category_id.
-Write data to silver layer [table_name: product].
-Store File Transformation:
+4.In employee_bronze_to_silver, call utils notebook in this notebook. Read the file located in DBFS location source_to_bronze with as data frame different read methods using custom schema.
 
-Convert column headers to snake case in lower case.
-Create "store category" column from email.
-Format created_at and updated_at to "yyyy-MM-dd".
-Write data to silver layer [table_name: store].
-Sales File Transformation:
+5.convert the Camel case of the columns to the snake case using UDF.
 
-Convert column headers to snake case in lower case.
-Write data to silver layer [table_name: customer_sales].
-Gold Layer Analysis
-Gold Layer Analysis:
-Retrieve data using product and store tables.
-Get specific data fields from customer_sales.
-Write data to gold layer [table_name: StoreProductSalesAnalysis].
-Note: All dates should be maintained in "yyyy-MM-dd" format.
+6.Add the load_date column with the current date.
 
-File Paths:
-Silver Layer: silver/sales_view/tablename/{delta pearquet}
-Gold Layer: gold/sales_view/tablename/{delta pearquet}
+• The primary key is EmployeeID, the Database name is Employee_info, Table name is dim_employee.
+
+• write the DF as a delta table to the location /silver/db_name/table_name.
+
+7.In gold notebook employee_silver_to_gold, call utils notebook in this notebook Read the table stored in a silver layer as DataFrame and select the columns based on the following requirements.
+
+8.Requirements:
+
+• Find the salary of each department in descending order.
+
+• Find the number of employees in each department located in each country.
+
+• List the department names along with their corresponding country names.
+
+• What is the average age of employees in each department?
+
+• Add the at_load_date column to data frames.
+
+• Write the df to dbfs location /gold/employee/table_name(fact_employee) with overwrite and replace where condition on at_load_date.
+
+Question 2:
+
+1.Fetch the data from the given API by passing the parameter as a page and retrieving the data till the data is empty.
+
+2.Read the data frame with a custom schema
+
+3.Flatten the dataframe
+
+4.Derive a new column from email as site_address with values(reqres.in)
+
+5.Add load_date with the current date
+
+6.Write the data frame to location in DBFS as /db_name /table_name with Db_name as site_info and table_name as person_info with delta format and overwrite mode.
